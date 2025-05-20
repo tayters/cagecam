@@ -7,12 +7,7 @@ ir_output = DigitalOutputDevice(17, active_high=True, initial_value=False)
 
 def start_stream():
     # Start Libcamera stream with minimal output
-    stream_command = (
-        "libcamera-vid -t 0 --width 1920 --height 1080 --codec h264 "
-        "--log-level=error "  # Reduce verbosity
-        "| cvlc -q stream:///dev/stdin "
-        "--sout '#standard{access=http,mux=ts,dst=:8080}' :demux=h264"
-    )
+    stream_command = ("libcamera-vid -o - -t 0 --width 1920 --height 1080 | cvlc -vvv stream:///dev/stdin --sout '#standard{access=http,mux=ts,dst=:8080}' :demux=h264")
     os.system(stream_command)
 
 # Start the stream in a separate thread
