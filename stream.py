@@ -5,15 +5,20 @@ from gpiozero import DigitalOutputDevice
 # Set up GPIO17 as a digital output
 ir_output = DigitalOutputDevice(17, active_high=True, initial_value=False)
 
+# Global variable to hold the stream process
+stream_process = None
+
 def start_stream():
+    global stream_process
     # Start Libcamera stream piped into VLC for HTTP streaming
     stream_command = (
-        "libcamera-vid -o - -t 0 --width 1920 --height 1080 --codec h264 | "
-        "cvlc -q stream:///dev/stdin "
+        "libcamera-vid -o - -t 0 --width 1920 --height 1080 --codec h264 "
+        "| cvlc -q stream:///dev/stdin "
         "--sout '#standard{access=http,mux=ts,dst=:8080}' :demux=h264"
     )
     try:
-        subprocess.Popen(stream_command, shell=True)
+        # Start the stream in a shell so the pipe works
+        stream_process = subprocess.Popen(stream_command, shell=True)
     except Exception as e:
         print(f"Failed to start stream: {e}")
 
@@ -41,3 +46,6 @@ try:
 finally:
     ir_output.off()
     print("IR LED turned off.")
+    if stream_process:
+        stream_process.terminate()
+        print("Streaming process terminated.")
