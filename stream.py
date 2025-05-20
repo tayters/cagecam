@@ -1,4 +1,4 @@
-import os
+import subprocess
 import threading
 from gpiozero import DigitalOutputDevice
 
@@ -6,11 +6,18 @@ from gpiozero import DigitalOutputDevice
 ir_output = DigitalOutputDevice(17, active_high=True, initial_value=False)
 
 def start_stream():
-    # Start Libcamera stream with minimal output
-    stream_command = ("libcamera-vid -o - -t 0 --width 1920 --height 1080 | cvlc -vvv stream:///dev/stdin --sout '#standard{access=http,mux=ts,dst=:8080}' :demux=h264")
-    os.system(stream_command)
+    # Start Libcamera stream piped into VLC for HTTP streaming
+    stream_command = (
+        "libcamera-vid -o - -t 0 --width 1920 --height 1080 --codec h264 | "
+        "cvlc -q stream:///dev/stdin "
+        "--sout '#standard{access=http,mux=ts,dst=:8080}' :demux=h264"
+    )
+    try:
+        subprocess.Popen(stream_command, shell=True)
+    except Exception as e:
+        print(f"Failed to start stream: {e}")
 
-# Start the stream in a separate thread
+# Start the stream in a background thread
 stream_thread = threading.Thread(target=start_stream, daemon=True)
 stream_thread.start()
 
