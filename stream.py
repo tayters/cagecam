@@ -1,0 +1,41 @@
+import os
+import threading
+from gpiozero import DigitalOutputDevice
+
+# Set up GPIO17 as a digital output
+ir_output = DigitalOutputDevice(17, active_high=True, initial_value=False)
+
+def start_stream():
+    # Start Libcamera stream with minimal output
+    stream_command = (
+        "libcamera-vid -t 0 --width 1920 --height 1080 --codec h264 "
+        "--log-level=error "  # Reduce verbosity
+        "| cvlc -q stream:///dev/stdin "
+        "--sout '#standard{access=http,mux=ts,dst=:8080}' :demux=h264"
+    )
+    os.system(stream_command)
+
+# Start the stream in a separate thread
+stream_thread = threading.Thread(target=start_stream, daemon=True)
+stream_thread.start()
+
+print("Streaming started at http://<raspberrypi_ip>:8080")
+print("Type 'on' to turn IR ON, 'off' to turn it OFF, or 'exit' to quit.")
+
+try:
+    while True:
+        command = input("IR control > ").strip().lower()
+        if command == "on":
+            ir_output.on()
+            print("IR LED ON")
+        elif command == "off":
+            ir_output.off()
+            print("IR LED OFF")
+        elif command == "exit":
+            print("Exiting...")
+            break
+        else:
+            print("Invalid command. Use 'on', 'off', or 'exit'.")
+finally:
+    ir_output.off()
+    print("IR LED turned off.")
