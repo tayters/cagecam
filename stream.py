@@ -15,6 +15,8 @@ def start_stream():
         "libcamera-vid -o - -t 0 --width 1920 --height 1080 --codec h264 "
         "| cvlc -q stream:///dev/stdin "
         "--sout '#standard{access=http,mux=ts,dst=:8080}' :demux=h264"
+        "> /dev/null 2>&1"
+
     )
     try:
         # Start the stream in a shell so the pipe works
