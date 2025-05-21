@@ -1,6 +1,5 @@
 import subprocess
 import threading
-import os  # Add this import
 from gpiozero import DigitalOutputDevice
 
 # Set up GPIO17 as a digital output
@@ -17,14 +16,11 @@ def start_stream():
         "| cvlc -q stream:///dev/stdin "
         "--sout '#standard{access=http,mux=ts,dst=:8080}' :demux=h264"
         "> /dev/null 2>&1"
+
     )
     try:
-        # Start the stream in a new process group
-        stream_process = subprocess.Popen(
-            stream_command,
-            shell=True,
-            preexec_fn=os.setsid  # This makes the shell the leader of a new process group
-        )
+        # Start the stream in a shell so the pipe works
+        stream_process = subprocess.Popen(stream_command, shell=True)
     except Exception as e:
         print(f"Failed to start stream: {e}")
 
@@ -53,8 +49,5 @@ finally:
     ir_output.off()
     print("IR LED turned off.")
     if stream_process:
-        try:
-            os.killpg(os.getpgid(stream_process.pid), 15)  # 15 is SIGTERM
-            print("Streaming process terminated.")
-        except Exception as e:
-            print(f"Error terminating stream: {e}")
+        stream_process.terminate()
+        print("Streaming process terminated.")
