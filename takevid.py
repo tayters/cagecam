@@ -27,9 +27,15 @@ try:
     # Run libcamera-vid for 3 minutes (180000 ms)
     subprocess.run([
         "libcamera-vid",
+        "--nopreview",
+        "-o", output_file,
         "-t", "180000",
-        "-o", output_file
+        "--width", "1920",
+        "--height", "1080",
+        "--saturation", "0",
+        "--log-level", "error"
     ])
+
 finally:
     # Pull GPIO17 low and cleanup
     GPIO.output(GPIO_PIN, GPIO.LOW)
