@@ -18,24 +18,18 @@ os.makedirs(output_dir, exist_ok=True)
 
 # Generate timestamped filename
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-output_file = os.path.join(output_dir, f"video_{timestamp}.h264")
+output_file = os.path.join(output_dir, f"video_{timestamp}.mp4")
 
 try:
-    # Pull GPIO17 high
     GPIO.output(GPIO_PIN, GPIO.HIGH)
 
-    # Run libcamera-vid for 3 minutes (180000 ms)
-    subprocess.run([
-        "libcamera-vid",
-        "--nopreview",
-        "-o", output_file,
-        "-t", "180000",
-        "--width", "1920",
-        "--height", "1080",
-        "--saturation", "0",
-    ], stderr=subprocess.DEVNULL)
+    # Pipe libcamera-vid output to ffmpeg to create MP4
+    cmd = (
+        f"libcamera-vid --nopreview -o - -t 180000 --width 1920 --height 1080 --saturation 0 "
+        f"| ffmpeg -y -i - -c copy {output_file}"
+    )
+    subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 finally:
-    # Pull GPIO17 low and cleanup
     GPIO.output(GPIO_PIN, GPIO.LOW)
     GPIO.cleanup()
