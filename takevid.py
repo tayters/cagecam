@@ -33,7 +33,6 @@ try:
         "--width", "1920",
         "--height", "1080",
         "--saturation", "0",
-        "--log-level", "error"
     ], stderr=subprocess.DEVNULL)
 
 finally:
