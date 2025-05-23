@@ -34,7 +34,7 @@ try:
         "--height", "1080",
         "--saturation", "0",
         "--log-level", "error"
-    ])
+    ], stderr=subprocess.DEVNULL)
 
 finally:
     # Pull GPIO17 low and cleanup
