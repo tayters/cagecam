@@ -18,14 +18,14 @@ os.makedirs(output_dir, exist_ok=True)
 
 # Generate timestamped filename
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-output_file = os.path.join(output_dir, f"video_{timestamp}.mp4")
+output_file = os.path.join(output_dir, f"video_{timestamp}.h264")
 
 try:
     GPIO.output(GPIO_PIN, GPIO.HIGH)
 
-    # Use libcamera-vid to write directly to MP4 if supported
+    # Use libcamera-vid to write H.264 video
     cmd = (
-        f"libcamera-vid --nopreview -o {output_file} --codec libav "
+        f"libcamera-vid --nopreview -o {output_file} "
         f"-t 180000 --width 1920 --height 1080 --framerate 30 --saturation 0"
     )
     subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
