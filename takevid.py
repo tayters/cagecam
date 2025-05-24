@@ -26,7 +26,7 @@ try:
     # Pipe libcamera-vid output to ffmpeg to create MP4
     cmd = (
         f"libcamera-vid --nopreview -o - -t 180000 --width 1920 --height 1080 --saturation 0 "
-        f"| ffmpeg -y -i - -vcodec libx264 -preset veryfast -crf 23 {output_file}"
+        f"| ffmpeg -y -i - -vcodec libx264 -preset veryfast -crf 20 {output_file}"
     )
     subprocess.run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
